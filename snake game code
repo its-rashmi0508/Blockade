@@ -1,0 +1,168 @@
+using System;
+
+
+namespace SnakeGame
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Random rand = new Random();
+            Console.CursorVisible = false;
+            bool ShouldExit = false;
+
+            // Snake
+            string snake = "-<===|:D-";
+           
+            
+            int snakeX = 0;
+            int snakeY = 0;
+            int frogEat = 0;
+            
+            // Frog
+            string frog = "^(..)^";
+            int frogX = 0;
+            int frogY = 0;
+
+            // Canvas dimensions
+            int height = Console.WindowHeight;
+            int width = Console.WindowWidth - snake.Length;
+
+            // Start the game
+            StartGame();
+
+
+            while (!ShouldExit)
+            {
+                if (TerminalResized())
+                {
+                    Console.Clear();
+                    Console.WriteLine("Canvas size changed!!\nGAME END!!");
+                    ShouldExit = true;
+                }
+                else
+                {
+                    Move();
+
+                    if (GotFrog())
+                    {
+                        frogEat++;
+                        Console.SetCursorPosition(width - 2, 3);
+                        Console.Write($"FROG EAT:{frogEat}");
+                        ShowLevel();
+                        ShowFood();
+                    }
+                }
+            }
+
+            //GotFrog
+            bool GotFrog()
+            {
+                return snakeX == frogX && snakeY == frogY;
+            }
+
+            // Function to handle snake movement
+            void Move()
+            {
+                int lastSnakeX = snakeX;
+                int lastSnakeY = snakeY;
+
+                // Handle user input
+                switch (Console.ReadKey(true).Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        snakeY--;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        snakeY++;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        snakeX--;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        snake = "-<===|:D-";
+                        snakeX++;
+                        break;
+                    default:
+                        Console.Clear();
+                        Console.SetCursorPosition(width / 2, height / 2);
+                        Console.Write("!! GAME END !!");
+                        ShouldExit = true;
+                        break;
+                }
+
+                // Clear the previous snake position
+                Console.SetCursorPosition(lastSnakeX, lastSnakeY);
+                for (int i = 0; i < snake.Length; i++)
+                {
+                    Console.Write(" ");
+                }
+
+                // Ensure snake stays within boundaries
+                if (snakeX < 0 || snakeX > width || snakeY < 0 || snakeY > height)
+                {
+                    Console.Clear();
+                    Console.SetCursorPosition(width / 2, height / 2);
+                    Console.Write("GAME OVER!!");
+                    ShouldExit = true;
+                    return;
+                }
+
+                // Draw the snake at the new location
+                Console.SetCursorPosition(snakeX, snakeY);
+                Console.Write(snake);
+            }
+
+            // Returns true if the terminal was resized
+            bool TerminalResized()
+            {
+                return height != Console.WindowHeight || width != Console.WindowWidth - snake.Length;
+            }
+
+            // Display the frog (food)
+            void ShowFood()
+            {
+                frogX = rand.Next(0, width);
+                frogY = rand.Next(0, height);
+
+                // Display the frog at a random position
+                Console.SetCursorPosition(frogX, frogY);
+                Console.Write(frog);
+            }
+
+            void ShowLevel()
+            {
+                Console.SetCursorPosition(width - 2, 2);
+                if(frogEat >= 0 && frogEat < 5)
+                {
+                    Console.Write($"LEVEL: 1");
+                    Console.SetCursorPosition(width - 2, 2);
+                    
+                
+                }
+                else if (frogEat >= 5 && frogEat < 10)
+                {
+                    Console.Write($"LEVEL: 2");
+                    Console.SetCursorPosition(width - 2, 2);
+                    
+                }
+                else if (frogEat >= 10 && frogEat < 15)
+                {
+                    Console.Write($"LEVEL: 3");
+                    Console.SetCursorPosition(width - 2, 2);
+
+                }
+            }
+
+            // Start the game
+            void StartGame()
+            {
+                Console.Clear();
+                ShowFood();
+                ShowLevel();
+                Console.SetCursorPosition(0, 0);
+                Console.Write(snake);
+            }
+        }
+    }
+}
